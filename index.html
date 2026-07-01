@@ -37,6 +37,19 @@
             font-size: 14px;
             margin: 0;
         }
+        /* Style untuk Brosur Gambar */
+        .brosur-container {
+            width: 100%;
+            margin-top: 15px;
+            text-align: center;
+        }
+        .brosur-img {
+            width: 100%;
+            max-height: 350px;
+            object-fit: contain;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+        }
         .form-group {
             margin-bottom: 15px;
         }
@@ -148,6 +161,18 @@
             font-weight: bold;
             color: #0f172a;
         }
+        .note-invoice {
+            font-size: 12px;
+            color: #64748b;
+            text-align: center;
+            line-height: 1.5;
+            margin-top: 15px;
+            font-style: italic;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 3px solid #0f172a;
+        }
 
         /* 4. Green WA Button */
         .btn-wa {
@@ -178,9 +203,12 @@
     <h2>Hayam Wuruk Les Private</h2>
     <p class="text-center">Hitung Biaya Les</p>
     
+    <div class="brosur-container">
+        <img src="WhatsApp Image 2026-07-01 at 09.27.09.jpg" alt="Brosur Hayam Wuruk Les Private" class="brosur-img" onerror="this.style.display='none';">
+    </div>
+    
     <div class="divider"></div>
 
-    <!-- Progress Bar -->
     <div style="font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #475569;">Informasi Program</div>
     <div class="progress-container">
         <div class="progress-bar" id="progressBar"></div>
@@ -189,7 +217,6 @@
 
     <div class="divider"></div>
 
-    <!-- Form Inputs -->
     <div class="form-group">
         <label>Jenis Program</label>
         <select id="jenis_program" onchange="logicDropdown(); updateProgress();">
@@ -231,18 +258,16 @@
         <div class="divider"></div>
     </div>
 
-    <!-- 1. Kondisional Kurikulum (Akan disembunyikan otomatis lewat JS bila tidak sesuai) -->
     <div class="form-group" id="group_kurikulum">
         <label>Kurikulum</label>
         <select id="kurikulum" onchange="updateProgress();">
-            <option value="0" selected>▼ Nasional</option>
+            <option value="0" selected>▼ Kurikulum Kemendikbud</option>
             <option value="15000">▼ Cambridge + Pengantar Bahasa Indonesia</option>
             <option value="35000">▼ Cambridge + Pengantar Inggris</option>
         </select>
         <div class="divider"></div>
     </div>
 
-    <!-- 2. Jumlah Pertemuan Sesuai Request -->
     <div class="form-group">
         <label>Jumlah Pertemuan</label>
         <select id="pertemuan" onchange="updateProgress();">
@@ -263,12 +288,10 @@
 
     <button class="btn-hitung" onclick="prosesHitung()">[ Hitung Biaya ]</button>
 
-    <!-- Loading Animation -->
     <div class="loading-box" id="loadingBox">
         <div class="spinner"></div> Menghitung Estimasi...
     </div>
 
-    <!-- Invoice Output -->
     <div class="invoice-box" id="invoiceBox">
         <h3 style="font-size: 16px; margin-bottom: 2px;">SIMULASI TAGIHAN</h3>
         <h3 style="font-size: 14px; font-weight: normal; margin-top: 0; color: #475569;">Hayam Wuruk Les Private</h3>
@@ -284,7 +307,6 @@
 
         <div class="divider"></div>
         
-        <!-- 3. Perubahan Text Menjadi Harga Normal -->
         <div class="row"><span>Harga Normal</span><span id="invHargaDasar"></span></div>
         <div class="row" id="invRowTambahan"><span>Tambahan Kurikulum</span><span id="invTambahan"></span></div>
         <div class="row row-bold"><span>Harga per Pertemuan</span><span id="invPerPertemuan"></span></div>
@@ -296,9 +318,12 @@
             <span>TOTAL TAGIHAN</span>
             <span id="invTotal"></span>
         </div>
+
+        <div class="note-invoice">
+            *Catatan: Tagihan resmi dibayarkan setelah Anda mendapatkan invoice resmi dari LBB Hayam Wuruk beserta nomor rekening resmi lembaga.
+        </div>
     </div>
 
-    <!-- WA Button -->
     <a href="#" id="waButton" class="btn-wa" target="_blank">🟢 Saya Setuju dengan Simulasi Ini</a>
 
 </div>
@@ -360,19 +385,17 @@ function logicDropdown() {
     const program = progSelect.value;
     if (!program) return;
 
-    // Sembunyikan/Tampilkan kolom Jumlah Siswa
     if (program.includes("Bersaudara") || jenis !== "Les Sekolah") {
         divSiswa.style.display = "none";
     } else {
         divSiswa.style.display = "block";
     }
 
-    // 1. Logika Validasi Kurikulum: Hanya tampil untuk Les Sekolah (Reguler, Plus, maupun Kakak Adik Bersaudara)
     if (jenis === "Les Sekolah") {
         divKurikulum.style.display = "block";
     } else {
         divKurikulum.style.display = "none";
-        document.getElementById("kurikulum").value = "0"; // Reset ke Nasional jika disembunyikan
+        document.getElementById("kurikulum").value = "0"; 
     }
 
     let keySiswa = (program.includes("Bersaudara")) ? "Kombinasi" : ((jenis !== "Les Sekolah") ? "Siswa" : jmlSiswa);
@@ -446,7 +469,6 @@ function kalkulasiInvoice() {
         document.getElementById("invSiswa").textContent = jmlSiswa;
     }
 
-    // Tampilkan/Sembunyikan Baris Kurikulum di Invoice
     if (jenis === "Les Sekolah") {
         document.getElementById("invRowKurikulum").style.display = "flex";
         document.getElementById("invRowTambahan").style.display = "flex";
@@ -466,7 +488,7 @@ function kalkulasiInvoice() {
     document.getElementById("invoiceBox").style.display = "block";
 
     let textSiswa = (program.includes("Bersaudara") || jenis !== "Les Sekolah") ? "-" : jmlSiswa;
-    let textKurikulum = (jenis === "Les Sekolah") ? kurikulumText.split(" (+")[0] : "Nasional";
+    let textKurikulum = (jenis === "Les Sekolah") ? kurikulumText.split(" (+")[0] : "Kurikulum Kemendikbud";
 
     let waMessage = `Halo Admin Hayam Wuruk Les Private.
 Saya telah melakukan simulasi biaya les melalui website.
