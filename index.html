@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi Biaya Les - Hayam Wuruk</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+            color: #1e293b;
+        }
+        .container {
+            max-width: 450px;
+            background: #ffffff;
+            margin: 0 auto;
+            padding: 25px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .divider {
+            border-top: 1px solid #cbd5e1;
+            margin: 15px 0;
+        }
+        h2 {
+            text-align: center;
+            margin: 0 0 5px 0;
+            color: #0f172a;
+            font-size: 22px;
+        }
+        .text-center {
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+            margin: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #475569;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background-color: #fff;
+            font-family: inherit;
+            font-size: 14px;
+            box-sizing: border-box;
+            color: #334155;
+        }
+        
+        /* 1. Progress Bar */
+        .progress-container {
+            margin: 10px 0;
+            background-color: #f1f5f9;
+            border-radius: 4px;
+            position: relative;
+            height: 18px;
+            text-align: center;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background-color: #334155;
+            width: 0%;
+            height: 100%;
+            transition: width 0.3s;
+        }
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            font-size: 11px;
+            line-height: 18px;
+            font-weight: bold;
+            color: #0f172a;
+            mix-blend-mode: difference;
+        }
+
+        button.btn-hitung {
+            width: 100%;
+            background-color: #0f172a;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        button.btn-hitung:hover {
+            background-color: #1e293b;
+        }
+
+        /* 2. Loading Animation */
+        .loading-box {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            font-weight: 600;
+            color: #475569;
+        }
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #e2e8f0;
+            border-top-color: #0f172a;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Invoice Style */
+        .invoice-box {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 14px;
+            color: #334155;
+        }
+        .row-bold {
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        /* 4. Green WA Button */
+        .btn-wa {
+            display: none;
+            width: 100%;
+            background-color: #22c55e;
+            color: white;
+            text-align: center;
+            padding: 12px 0;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            text-decoration: none;
+            box-shadow: 0 2px 4px rgba(34, 197, 94, 0.2);
+            box-sizing: border-box;
+        }
+        .btn-wa:hover {
+            background-color: #16a34a;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Hayam Wuruk Les Private</h2>
+    <p class="text-center">Hitung Biaya Les</p>
+    
+    <div class="divider"></div>
+
+    <!-- Progress Bar -->
+    <div style="font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #475569;">Informasi Program</div>
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+        <div class="progress-text" id="progressText">0%</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Form Inputs -->
+    <div class="form-group">
+        <label>Jenis Program</label>
+        <select id="jenis_program" onchange="logicDropdown(); updateProgress();">
+            <option value="" disabled selected>▼ Pilih Jenis Program</option>
+            <option value="Les Sekolah">Les Sekolah</option>
+            <option value="Les Mengaji">Les Mengaji</option>
+            <option value="Les Komputer">Les Komputer</option>
+            <option value="Les Mandarin">Les Mandarin</option>
+            <option value="Asisten Proyek Sekolah">Asisten Proyek Sekolah</option>
+        </select>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="form-group">
+        <label>Program</label>
+        <select id="program" onchange="logicDropdown(); updateProgress();">
+            <option value="" disabled selected>▼ Pilih Program</option>
+        </select>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="form-group">
+        <label>Jenjang / Paket</label>
+        <select id="jenjang" onchange="updateProgress();">
+            <option value="" disabled selected>▼ Pilih Jenjang</option>
+        </select>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="form-group" id="group_siswa">
+        <label>Jumlah Siswa</label>
+        <select id="jumlah_siswa" onchange="logicDropdown(); updateProgress();">
+            <option value="1 Anak" selected>▼ 1 Anak</option>
+            <option value="2 Anak">▼ 2 Anak</option>
+        </select>
+        <div class="divider"></div>
+    </div>
+
+    <div class="form-group">
+        <label>Kurikulum</label>
+        <select id="kurikulum" onchange="updateProgress();">
+            <option value="0" selected>▼ Nasional</option>
+            <option value="15000">▼ Cambridge + Pengantar Bahasa Indonesia</option>
+            <option value="35000">▼ Cambridge + Pengantar Inggris</option>
+        </select>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="form-group">
+        <label>Jumlah Pertemuan</label>
+        <select id="pertemuan" onchange="updateProgress();">
+            <option value="4">▼ 4 Kali</option>
+            <option value="8" selected>▼ 8 Kali</option>
+            <option value="12">▼ 12 Kali</option>
+        </select>
+    </div>
+
+    <div class="divider"></div>
+
+    <button class="btn-hitung" onclick="prosesHitung()">[ Hitung Biaya ]</button>
+
+    <!-- Loading Animation -->
+    <div class="loading-box" id="loadingBox">
+        <div class="spinner"></div> Menghitung Estimasi...
+    </div>
+
+    <!-- Invoice Output -->
+    <div class="invoice-box" id="invoiceBox">
+        <h3 style="font-size: 16px; margin-bottom: 2px;">SIMULASI TAGIHAN</h3>
+        <h3 style="font-size: 14px; font-weight: normal; margin-top: 0; color: #475569;">Hayam Wuruk Les Private</h3>
+        
+        <div class="divider"></div>
+
+        <div class="row"><span>Jenis Les</span><span id="invJenis" class="row-bold"></span></div>
+        <div class="row"><span>Program</span><span id="invProgram" class="row-bold"></span></div>
+        <div class="row"><span>Jenjang</span><span id="invJenjang" class="row-bold"></span></div>
+        <div class="row" id="invRowSiswa"><span>Jumlah Siswa</span><span id="invSiswa" class="row-bold"></span></div>
+        <div class="row"><span>Kurikulum</span><span id="invKurikulum" class="row-bold"></span></div>
+        <div class="row"><span>Jumlah Pertemuan</span><span id="invPertemuan" class="row-bold"></span></div>
+
+        <div class="divider"></div>
+        
+        <div class="row"><span>Harga Dasar</span><span id="invHargaDasar"></span></div>
+        <div class="row"><span>Tambahan Kurikulum</span><span id="invTambahan"></span></div>
+        <div class="row row-bold"><span>Harga per Pertemuan</span><span id="invPerPertemuan"></span></div>
+        <div class="row"><span>Jumlah Pertemuan</span><span id="invPertemuanKali"></span></div>
+        
+        <div class="divider"></div>
+
+        <div class="row row-bold" style="font-size: 16px; color: #0f172a;">
+            <span>TOTAL TAGIHAN</span>
+            <span id="invTotal"></span>
+        </div>
+    </div>
+
+    <!-- WA Button -->
+    <a href="#" id="waButton" class="btn-wa" target="_blank">🟢 Saya Setuju dengan Simulasi Ini</a>
+
+</div>
+
+<script>
+// Database Harga lengkap dari Brosur Tapel 26/27
+const dbHarga = {
+    "Les Sekolah": {
+        "Reguler (1,5 Jam)": {
+            "1 Anak": { "PAUD/KB/PG": 45000, "TK (A-B)": 50000, "SD (1-3)": 55000, "SD (4-6)": 60000, "SMP (7-8)": 70000, "SMP 9": 75000, "SMA 10": 80000, "SMA 11": 85000, "SMA 12": 90000, "SNBT": 120000 },
+            "2 Anak": { "TK (A-B)": 60000, "SD (1-3)": 70000, "SD (4-6)": 75000, "SMP (7-8)": 85000, "SMP 9": 90000, "SMA 10": 95000, "SMA 11": 100000, "SMA 12": 105000, "SNBT": 140000 }
+        },
+        "Reguler PLUS+ (2 Jam)": {
+            "1 Anak": { "TK (A-B)": 60000, "SD (1-3)": 70000, "SD (4-6)": 75000, "SMP (7-8)": 85000, "SMP 9": 90000, "SMA 10": 100000, "SMA 11": 100000, "SMA 12": 110000, "SNBT": 140000 },
+            "2 Anak": { "TK (A-B)": 70000, "SD (1-3)": 85000, "SD (4-6)": 90000, "SMP (7-8)": 100000, "SMP 9": 105000, "SMA 10": 115000, "SMA 11": 115000, "SMA 12": 125000, "SNBT": 160000 }
+        },
+        "Bersaudara Reguler (1,5 Jam)": {
+            "Kombinasi": { "Kakak TK/PAUD/KB + Adik TK/PAUD/KB": 60000, "Kakak SD + Adik TK/PAUD/KB": 65000, "Kakak SD + Adik SD": 70000, "Kakak SMP + Adik TK/PAUD/KB": 75000, "Kakak SMP + Adik SD": 80000, "Kakak SMP + Adik SMP": 85000, "Kakak SMA + Adik SMP": 90000, "Kakak SMA + Adik SMA": 100000 }
+        },
+        "Bersaudara Reguler Plus+ (2 Jam)": {
+            "Kombinasi": { "Kakak TK/PAUD/KB + Adik TK/PAUD/KB": 70000, "Kakak SD + Adik TK/PAUD/KB": 80000, "Kakak SD + Adik SD": 85000, "Kakak SMP + Adik TK/PAUD/KB": 90000, "Kakak SMP + Adik SD": 95000, "Kakak SMP + Adik SMP": 100000, "Kakak SMA + Adik SMP": 105000, "Kakak SMA + Adik SMA": 115000 }
+        }
+    },
+    "Les Mengaji": {
+        "Mengaji 1,5 Jam": { "Siswa": { "Jilid": 45000, "Alquran": 55000, "Tahfidz": 55000 } },
+        "Mengaji Plus 2 Jam": { "Siswa": { "Jilid": 60000, "Alquran": 70000, "Tahfidz": 70000 } }
+    },
+    "Les Komputer": {
+        "Komputer 1,5 Jam": { "Siswa": { "Word, Excel, Power Point": 60000, "Canva": 60000, "Scratch, Tynker, dll": 70000 } }
+    },
+    "Les Mandarin": {
+        "Mandarin 2 Jam": { "Siswa": { "Pemula HSK 1-2": 180000, "Menengah HSK 3": 220000 } }
+    },
+    "Asisten Proyek Sekolah": {
+        "Science (2 Jam)": { "Siswa": { "Biology": 100000, "Chemistry": 100000, "Physics": 100000 } },
+        "Coding (2 Jam)": { "Siswa": { "Coding": 100000 } }
+    }
+};
+
+function logicDropdown() {
+    const jenis = document.getElementById("jenis_program").value;
+    const progSelect = document.getElementById("program");
+    const jenjangSelect = document.getElementById("jenjang");
+    const divSiswa = document.getElementById("group_siswa");
+    const jmlSiswa = document.getElementById("jumlah_siswa").value;
+
+    if (!jenis) return;
+
+    if (progSelect.dataset.currentJenis !== jenis) {
+        progSelect.innerHTML = '<option value="" disabled selected>▼ Pilih Program</option>';
+        for (let prog in dbHarga[jenis]) {
+            progSelect.innerHTML += `<option value="${prog}">${prog}</option>`;
+        }
+        progSelect.dataset.currentJenis = jenis;
+        jenjangSelect.innerHTML = '<option value="" disabled selected>▼ Pilih Jenjang</option>';
+    }
+
+    const program = progSelect.value;
+    if (!program) return;
+
+    if (program.includes("Bersaudara")) {
+        divSiswa.style.display = "none";
+    } else if (jenis !== "Les Sekolah") {
+        divSiswa.style.display = "none";
+    } else {
+        divSiswa.style.display = "block";
+    }
+
+    let keySiswa = (program.includes("Bersaudara")) ? "Kombinasi" : ((jenis !== "Les Sekolah") ? "Siswa" : jmlSiswa);
+    
+    let listJenjang = dbHarga[jenis][program][keySiswa];
+    jenjangSelect.innerHTML = '<option value="" disabled selected>▼ Pilih Jenjang</option>';
+    for (let jenj in listJenjang) {
+        jenjangSelect.innerHTML += `<option value="${jenj}">${jenj}</option>`;
+    }
+}
+
+function updateProgress() {
+    let fields = ['jenis_program', 'program', 'jenjang'];
+    let filled = 0;
+    fields.forEach(id => {
+        if (document.getElementById(id).value !== "") filled++;
+    });
+    
+    let percent = Math.round((filled / fields.length) * 100);
+    document.getElementById("progressBar").style.width = percent + "%";
+    document.getElementById("progressText").textContent = percent + "%";
+}
+
+function formatRupiah(angka) {
+    return "Rp" + angka.toLocaleString('id-ID');
+}
+
+function prosesHitung() {
+    const jenis = document.getElementById("jenis_program").value;
+    const program = document.getElementById("program").value;
+    const jenjang = document.getElementById("jenjang").value;
+    
+    if (!jenis || !program || !jenjang) {
+        alert("Mohon lengkapi data pilihan program terlebih dahulu!");
+        return;
+    }
+
+    document.getElementById("invoiceBox").style.display = "none";
+    document.getElementById("waButton").style.display = "none";
+    document.getElementById("loadingBox").style.display = "block";
+
+    setTimeout(() => {
+        document.getElementById("loadingBox").style.display = "none";
+        kalkulasiInvoice();
+    }, 500);
+}
+
+function kalkulasiInvoice() {
+    const jenis = document.getElementById("jenis_program").value;
+    const program = document.getElementById("program").value;
+    const jenjang = document.getElementById("jenjang").value;
+    const jmlSiswa = document.getElementById("jumlah_siswa").value;
+    const kurikulumBiaya = parseInt(document.getElementById("kurikulum").value);
+    const kurikulumText = document.getElementById("kurikulum").options[document.getElementById("kurikulum").selectedIndex].text.replace('▼ ', '');
+    const pertemuan = parseInt(document.getElementById("pertemuan").value);
+
+    let keySiswa = (program.includes("Bersaudara")) ? "Kombinasi" : ((jenis !== "Les Sekolah") ? "Siswa" : jmlSiswa);
+    let hargaDasar = dbHarga[jenis][program][keySiswa][jenjang];
+
+    let hargaPerPertemuan = hargaDasar + kurikulumBiaya;
+    let totalTagihan = hargaPerPertemuan * pertemuan;
+
+    document.getElementById("invJenis").textContent = jenis;
+    document.getElementById("invProgram").textContent = program;
+    document.getElementById("invJenjang").textContent = jenjang;
+    
+    if (program.includes("Bersaudara") || jenis !== "Les Sekolah") {
+        document.getElementById("invRowSiswa").style.display = "none";
+    } else {
+        document.getElementById("invRowSiswa").style.display = "flex";
+        document.getElementById("invSiswa").textContent = jmlSiswa;
+    }
+
+    document.getElementById("invKurikulum").textContent = kurikulumText.split(" (+")[0];
+    document.getElementById("invPertemuan").textContent = pertemuan + " Kali";
+    
+    document.getElementById("invHargaDasar").textContent = formatRupiah(hargaDasar);
+    document.getElementById("invTambahan").textContent = formatRupiah(kurikulumBiaya);
+    document.getElementById("invPerPertemuan").textContent = formatRupiah(hargaPerPertemuan);
+    document.getElementById("invPertemuanKali").textContent = pertemuan + " Kali";
+    document.getElementById("invTotal").textContent = formatRupiah(totalTagihan);
+
+    document.getElementById("invoiceBox").style.display = "block";
+
+    let textSiswa = (program.includes("Bersaudara") || jenis !== "Les Sekolah") ? "-" : jmlSiswa;
+    let waMessage = `Halo Admin Hayam Wuruk Les Private.
+Saya telah melakukan simulasi biaya les melalui website.
+Berikut hasil simulasi saya:
+• Jenis Les : ${jenis}
+• Program : ${program}
+• Jenjang : ${jenjang}
+• Jumlah Siswa : ${textSiswa}
+• Kurikulum : ${kurikulumText.split(" (+")[0]}
+• Jumlah Pertemuan : ${pertemuan} Kali/Bulan
+• Harga per Pertemuan : ${formatRupiah(hargaPerPertemuan)}
+Total Tagihan : ${formatRupiah(totalTagihan)}
+Saya setuju dengan simulasi biaya tersebut dan ingin melanjutkan proses pendaftaran.`;
+
+    let waUrl = "https://api.whatsapp.com/send?phone=6281930663405&text=" + encodeURIComponent(waMessage);
+    
+    const waBtn = document.getElementById("waButton");
+    waBtn.href = waUrl;
+    waBtn.style.display = "block";
+}
+</script>
+
+</body>
+</html>
